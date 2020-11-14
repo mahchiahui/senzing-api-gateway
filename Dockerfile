@@ -1,5 +1,13 @@
 FROM python:3.8.6-buster
 
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_DEFAULT_REGION
+
+ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+ENV AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
+
 # Installing ECS CLI
 RUN curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
 
@@ -18,4 +26,10 @@ RUN unzip awscliv2.zip
 
 RUN ./aws/install
 
-ENTRYPOINT ["/bin/bash"]
+RUN apt-get update
+
+RUN apt-get install -y less vim
+
+COPY . /tmp/
+
+ENTRYPOINT ["/tmp"]
