@@ -7,6 +7,6 @@ services:
     logging:
       driver: awslogs
       options:
-        awslogs-group: tutorial
-        awslogs-region: us-west-2
+        awslogs-group: senzing
+        awslogs-region: us-east-1
         awslogs-stream-prefix: web
