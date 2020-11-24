@@ -103,7 +103,7 @@ aws elbv2 create-listener --load-balancer-arn <insert ALB ARN> \
 
 ### Step 3: Deploy Service to cluster
 
-deploy compose to Cluster
+Add subnet ids and security group id to ecs-params.yml, then deploy compose to Cluster
 
 ```console
 ecs-cli compose --project-name <compose-service-name> service up --create-log-groups --cluster-config <cluster-config-name> --ecs-profile <ecs-profile-name> --target-groups <insert target group arn>
@@ -127,7 +127,7 @@ Example
 ecs-cli compose --project-name senzing-example service ps --cluster-config senzing-example-cluster-config --ecs-profile senzing-profile
 ```
 
-### Step 4: Add Autoscale policy
+### Step 4: Add Autoscale policies
 
 Register your ECS service as a scalable target
 
@@ -192,7 +192,7 @@ aws cloudwatch put-metric-alarm \
   --alarm-actions PolicyARN
 ```
 
-### Step 3: AWS Cognito
+### Step 5: AWS Cognito
 
 
 
