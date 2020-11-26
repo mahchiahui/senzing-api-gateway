@@ -275,14 +275,11 @@ aws cloudwatch put-metric-alarm \
 
 ### Step 5: AWS Cognito
 
-VPC created: vpc-007d3dae2f4a942d8
-Subnet created: subnet-0c9528efcdc7e6c3a
-Subnet created: subnet-0e6988a387a5da3d2
-sg-0655a24e13dde5754
+TBD
 
 ## Clean Up
 
-
+TBD
 
 ## References
 
