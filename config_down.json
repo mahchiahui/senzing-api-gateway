@@ -4,18 +4,18 @@
   "Cooldown": 60,
   "StepAdjustments": [
     {
-      "MetricIntervalLowerBound": 0,
-      "MetricIntervalUpperBound": 15,
-      "ScalingAdjustment": -3
+      "MetricIntervalLowerBound": -15,
+      "MetricIntervalUpperBound": 0,
+      "ScalingAdjustment": -1
     },
     {
-      "MetricIntervalLowerBound": 15,
-      "MetricIntervalUpperBound": 25,
+      "MetricIntervalLowerBound": -25,
+      "MetricIntervalUpperBound": -15,
       "ScalingAdjustment": -2
     },
     {
-      "MetricIntervalLowerBound": 25,
-      "ScalingAdjustment": -1
+      "MetricIntervalUpperBound": -25,
+      "ScalingAdjustment": -3
     }
   ]
 }

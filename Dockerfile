@@ -31,5 +31,3 @@ RUN apt-get update
 RUN apt-get install -y less vim
 
 COPY . /tmp/
-
-ENTRYPOINT ["/tmp"]

@@ -5,6 +5,8 @@ task_definition:
   task_size:
     mem_limit: 0.5GB
     cpu_limit: 256
+  container_definitions:
+    - name: senzing
 run_params:
   network_configuration:
     awsvpc_configuration:

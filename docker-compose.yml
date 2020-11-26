@@ -1,6 +1,6 @@
 version: '3'
 services:
-  web:
+  senzing:
     image: amazon/amazon-ecs-sample
     ports:
       - "80:80"
