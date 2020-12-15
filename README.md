@@ -277,6 +277,36 @@ aws cloudwatch put-metric-alarm \
 
 TBD
 
+## Push image to AWS ECR
+
+Create an ECR repository and copy down the repositoryUri
+
+```console
+aws ecr create-repository --repository-name <repository name>
+```
+
+Authenticate your local Docker daemon against the ECR registry
+
+```console
+aws ecr get-login-password | docker login --username AWS --password-stdin <aws account id>.dkr.ecr.<aws region>.amazonaws.com
+```
+
+Tag the docker image you want push. If the tag at the end of the command is not provided, the default is latest.
+
+```console
+docker tag <image id> <repositoryUri>:<tag>
+```
+
+Push the docker image to the ECR registry
+
+```console
+docker push <repositoryUri>:<tag>
+```
+
+## Cloudformation
+
+A cloudformation example can be found [here](fargate-example.yml)
+
 ## Clean Up
 
 TBD
@@ -284,3 +314,5 @@ TBD
 ## References
 
 https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-cli-tutorial-fargate.html
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-service-up.html
+https://docs.aws.amazon.com/autoscaling/application/userguide/application-auto-scaling-step-scaling-policies.html
