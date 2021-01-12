@@ -20,7 +20,7 @@ Parameters:
     Default: 80
   LoadBalancerPort:
     Type: Number
-    Default: 80
+    Default: 443
   HealthCheckPath:
     Type: String
     Default: /healthcheck
@@ -38,7 +38,7 @@ Parameters:
     Default: 50
   # the custom domain name (e.g., grafana.example.com)
   PublicDomainName:
-    Type: String
+    Type: 'String'
 Resources:
   Cluster:
     Type: AWS::ECS::Cluster
@@ -195,23 +195,12 @@ Resources:
   ListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      Certificates:
-        - CertificateArn: !GetAtt 'cert.Arn'
       DefaultActions:
-        - Type: 'authenticate-cognito'
-          AuthenticateCognitoConfig:
-            OnUnauthenticatedRequest: 'authenticate' # Redirect unauthenticated clients to Cognito login page
-            Scope: 'openid'
-            UserPoolArn: !GetAtt 'UserPool.Arn'
-            UserPoolClientId: !Ref UserPoolClient
-            UserPoolDomain: !Ref UserPoolDomain
-          Order: 1
-        - Type: forward
+        - Type: forward # 2. Forward request to target group (e.g., EC2 instances)
           TargetGroupArn: !Ref TargetGroup
-          Order: 2
       LoadBalancerArn: !Ref LoadBalancer
       Port: !Ref LoadBalancerPort
-      Protocol: HTTP
+      Protocol: HTTPS
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -254,56 +243,6 @@ Resources:
         ScaleOutCooldown: 10
         # Keep things at or lower than 50% CPU utilization, for example
         TargetValue: !Ref AutoScalingTargetValue
-  UserPool:
-    Type: 'AWS::Cognito::UserPool'
-    Properties:
-      AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: true # Disable self-registration
-        InviteMessageTemplate:
-          EmailSubject: !Sub '${AWS::StackName}: temporary password'
-          EmailMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
-          SMSMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
-      AutoVerifiedAttributes:
-      - email
-      UsernameAttributes:
-      - email
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 16
-          RequireLowercase: false
-          RequireNumbers: false
-          RequireSymbols: false
-          RequireUppercase: false
-          TemporaryPasswordValidityDays: 21
-  UserPoolDomain: # Provides Cognito Login Page
-    Type: 'AWS::Cognito::UserPoolDomain'
-    Properties:
-      UserPoolId: !Ref UserPool
-      Domain: !Select [2, !Split ['/', !Ref 'AWS::StackId']] # Generates a unique domain name
-  UserPoolClient:
-    Type: 'AWS::Cognito::UserPoolClient'
-    Properties:
-      AllowedOAuthFlows:
-      - code # Required for ALB authentication
-      AllowedOAuthFlowsUserPoolClient: true # Required for ALB authentication
-      AllowedOAuthScopes:
-      - email
-      - openid
-      - profile
-      - aws.cognito.signin.user.admin
-      CallbackURLs:
-      - !Sub https://${PublicDomainName}/oauth2/idpresponse # Redirects to the ALB
-      GenerateSecret: true
-      SupportedIdentityProviders: # Optional: add providers for identity federation
-      - COGNITO
-      UserPoolId: !Ref UserPool
-  cert:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      DomainName: !Ref PublicDomainName
-      DomainValidationOptions:
-            - DomainName: !Ref PublicDomainName
-              ValidationDomain: !Ref PublicDomainName
 Outputs:
   Endpoint:
     Description: Endpoint
