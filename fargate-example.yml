@@ -20,7 +20,7 @@ Parameters:
     Default: 80
   LoadBalancerPort:
     Type: Number
-    Default: 80
+    Default: 443
   HealthCheckPath:
     Type: String
     Default: /healthcheck
@@ -36,8 +36,8 @@ Parameters:
   AutoScalingTargetValue:
     Type: Number
     Default: 50
-  # the custom domain name (e.g., grafana.example.com)
-  PublicDomainName:
+  # the IAM server certificate ARN
+  CertificateArn:
     Type: String
 Resources:
   Cluster:
@@ -196,7 +196,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       Certificates:
-        - CertificateArn: !GetAtt 'cert.Arn'
+        - CertificateArn: !Ref CertificateArn
       DefaultActions:
         - Type: 'authenticate-cognito'
           AuthenticateCognitoConfig:
@@ -211,7 +211,7 @@ Resources:
           Order: 2
       LoadBalancerArn: !Ref LoadBalancer
       Port: !Ref LoadBalancerPort
-      Protocol: HTTP
+      Protocol: HTTPS
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -268,12 +268,12 @@ Resources:
       UsernameAttributes:
       - email
       Policies:
-        PasswordPolicy:
+        PasswordPolicy: # secure password configuration
           MinimumLength: 16
-          RequireLowercase: false
-          RequireNumbers: false
-          RequireSymbols: false
-          RequireUppercase: false
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
           TemporaryPasswordValidityDays: 21
   UserPoolDomain: # Provides Cognito Login Page
     Type: 'AWS::Cognito::UserPoolDomain'
@@ -287,23 +287,13 @@ Resources:
       - code # Required for ALB authentication
       AllowedOAuthFlowsUserPoolClient: true # Required for ALB authentication
       AllowedOAuthScopes:
-      - email
       - openid
-      - profile
-      - aws.cognito.signin.user.admin
       CallbackURLs:
-      - !Sub https://${PublicDomainName}/oauth2/idpresponse # Redirects to the ALB
+      - !Sub https://${LoadBalancer.DNSName}/oauth2/idpresponse # Redirects to the ALB
       GenerateSecret: true
       SupportedIdentityProviders: # Optional: add providers for identity federation
       - COGNITO
       UserPoolId: !Ref UserPool
-  cert:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      DomainName: !Ref PublicDomainName
-      DomainValidationOptions:
-            - DomainName: !Ref PublicDomainName
-              ValidationDomain: !Ref PublicDomainName
 Outputs:
   Endpoint:
     Description: Endpoint
